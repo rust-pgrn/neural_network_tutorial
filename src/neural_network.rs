@@ -20,12 +20,25 @@ impl NeuralNetwork {
     pub fn calculate_outputs(&self, inputs: &Vec<f64>) -> Vec<f64> {
         //println!("Inputs: {:?}", inputs);
         let mut weighted_inputs = inputs.clone();
-        //println!("Cloned Inputs: {:?}", weighted_inputs);
+        // println!("Cloned Inputs: {:?}", weighted_inputs);
         for layer in self.layers.iter() {
             //println!("Old Inputs: {:?}", weighted_inputs);
             weighted_inputs = layer.calculate_outputs(&weighted_inputs);
             //println!("New Inputs: {:?}", weighted_inputs);
         }
+        //let mut biggest_value = *weighted_inputs.first().unwrap();
+        //for num in weighted_inputs.iter() {
+        //    if *num > biggest_value {
+        //        biggest_value = *num;
+        //    }
+        //}
+        //for num in weighted_inputs.iter_mut() {
+        //    if biggest_value == *num {
+        //        *num = 1.0;
+        //    } else {
+        //        *num = 0.0;
+        //    }
+        //}
         weighted_inputs
     }
     pub fn classify(&self, inputs: Vec<f64>) -> usize {
@@ -64,7 +77,7 @@ impl NeuralNetwork {
         total_cost / data.len() as f64
     }
     pub fn learn(&mut self, training_data: &Vec<DataPoint>, learn_rate: f64) {
-        let h = 0.0001;
+        let h = 0.0000000001;
         let original_cost = self.cost_of_all(&training_data);
         for i in 0..self.layers.len() {
             for node_in in 0..self.layers[i].num_nodes_in as usize {
@@ -82,7 +95,7 @@ impl NeuralNetwork {
             }
             for j in 0..self.layers[i].biases.len() {
                 self.layers[i].biases[j] += h;
-                let delta_cost = self.cost_of_all(&training_data);
+                let delta_cost = self.cost_of_all(&training_data) - original_cost;
                 self.layers[i].biases[j] -= h;
                 self.layers[i].cost_gradient_b[j] = delta_cost / h;
                 println!("gradients of b: {:?}", self.layers[i].cost_gradient_b);
@@ -91,10 +104,10 @@ impl NeuralNetwork {
         }
         for layer in &mut self.layers {
             println!("old weight: {:?}", layer.weights);
-            //println!("old biases: {:?}", layer.biases);
+            println!("old biases: {:?}", layer.biases);
             layer.apply_gradients(learn_rate);
             println!("new weight: {:?}", layer.weights);
-            //println!("new biases: {:?}", layer.biases);
+            println!("new biases: {:?}", layer.biases);
         }
     }
 }

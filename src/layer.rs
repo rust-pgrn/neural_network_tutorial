@@ -1,3 +1,5 @@
+use crate::activation::activation_function;
+
 use super::activation;
 use rand::Rng;
 #[derive(Debug)]
@@ -8,13 +10,15 @@ pub struct Layer {
     pub biases: Vec<f64>,
     pub cost_gradient_w: Vec<Vec<f64>>,
     pub cost_gradient_b: Vec<f64>,
+    //TODO: Add momentum
+    //TODO: Add different activations
 }
 impl Layer {
     pub fn new(num_nodes_in: i32, num_nodes_out: i32) -> Layer {
         let mut weights = Vec::new();
         let mut biases = Vec::new();
         let mut cost_gradient_w = Vec::new();
-        let mut cost_gradient_b = Vec::new();
+        let mut cost_gradient_b = Vec::with_capacity(num_nodes_out as usize);
         for i in 0..num_nodes_out {
             biases.push(0.0);
             cost_gradient_b.push(0.0);
@@ -76,7 +80,7 @@ impl Layer {
     }
     pub fn calculate_outputs(&self, inputs: &Vec<f64>) -> Vec<f64> {
         //println!("Calculating Individual Layer Outputs!");
-        let mut activations: Vec<f64> = Vec::new();
+        let mut weighted_inputs: Vec<f64> = Vec::new();
         for (node_out, bias) in self.biases.iter().enumerate() {
             //println!("First Loop");
             let mut weighted_input = *bias;
@@ -86,15 +90,21 @@ impl Layer {
                 weighted_input += inputs[node_in] * self.weights[node_in][node_out];
                 //println!("{weighted_input}");
             }
-            activations.push(activation::activation_function(weighted_input))
+            weighted_inputs.push(weighted_input);
             //)
         }
+        let mut activations = Vec::with_capacity(self.num_nodes_out as usize);
+        for node_out in 0..self.num_nodes_out {
+            activations.push(activation_function(weighted_inputs[node_out as usize]));
+        }
+        println!("weighted_inputs: {:#?}", weighted_inputs);
+        println!("activations: {:#?}", activations);
+
         activations
     }
     pub fn initialize_random_weights(&mut self) {
         for node_out in 0..self.num_nodes_out as usize {
-            let random_value: f64 = rand::thread_rng().gen();
-            self.biases[node_out] = random_value / (self.num_nodes_out as f64).sqrt();
+            self.biases[node_out] = 0.0;
             for node_in in 0..self.num_nodes_in as usize {
                 let random_value: f64 = rand::thread_rng().gen();
                 self.weights[node_in][node_out] = random_value / (self.num_nodes_in as f64).sqrt();

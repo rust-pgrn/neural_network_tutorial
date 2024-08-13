@@ -10,7 +10,7 @@ mod iris;
 mod layer;
 mod neural_network;
 fn main() {
-    let mut neural_network = NeuralNetwork::new(&[4, 4, 3, 3]);
+    let mut neural_network = NeuralNetwork::new(&[4, 4, 3]);
     ////println!("Going to run Cost function!");
     for layer in &mut neural_network.layers {
         layer.initialize_random_weights();
@@ -29,7 +29,7 @@ fn main() {
         //println!("expected outputs: {:?}", point.expected_outputs);
     }
 
-    neural_network.learn(&training_data, 0.0001);
+    neural_network.learn(&training_data, 4.25);
     println!("{:#?}", neural_network);
     println!("\n\n\n\n\n");
 
